@@ -20,12 +20,12 @@ services:
       - backend
 
   mysql:
-    image: mysql:8.0
+    image: mysql:5.7.29
     container_name: rcf-mysql
     restart: unless-stopped
     tty: true
     volumes:
-      - ./mysql:/var/liv/mys
+      - ./mysql:/var/lib/mys
     ports:
       - "3306:3306"
     environment:

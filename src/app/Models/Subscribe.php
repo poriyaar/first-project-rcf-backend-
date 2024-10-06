@@ -1,0 +1,23 @@
+<?php
+
+namespace App\Models;
+
+use App\Models\User;
+use App\Models\Thread;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
+class Subscribe extends Model
+{
+    use HasFactory;
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function thread()
+    {
+        return $this->belongsTo(Thread::class);
+    }
+}
