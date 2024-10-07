@@ -25,7 +25,7 @@ services:
     restart: unless-stopped
     tty: true
     volumes:
-      - ./mysql:/var/lib/mys
+      - ./mysql:/var/lib/mysql
     ports:
       - "3306:3306"
     environment:
