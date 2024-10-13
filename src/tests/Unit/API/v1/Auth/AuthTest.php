@@ -3,6 +3,7 @@
 namespace Tests\Unit\API\v1\Auth;
 
 use App\Models\User;
+use Database\Seeders\RoleAndPermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Response;
 use Tests\TestCase;
@@ -12,6 +13,11 @@ class AuthTest extends TestCase
 
     use RefreshDatabase;
 
+
+    public function rolesAndPermissions()
+    {
+        $this->seed(RoleAndPermissionSeeder::class);
+    }
 
     /**
      * Test Register
@@ -25,6 +31,7 @@ class AuthTest extends TestCase
 
     public function test_new_user_can_register()
     {
+        $this->rolesAndPermissions();
         //  $response = $this->postJson('api/v1/auth/register');
         $response = $this->postJson(route('auth.register'), [
             'name' => "poriya",

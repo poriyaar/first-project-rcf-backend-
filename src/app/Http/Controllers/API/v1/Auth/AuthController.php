@@ -25,17 +25,22 @@ class AuthController extends Controller
     {
         $request->validate([
             'name' => ['required'],
-            'email' => ['required' , 'email', 'unique:users'],
+            'email' => ['required', 'email', 'unique:users'],
             'password' => ['required'],
         ]);
         // insert user into database
-        resolve(UserRepository::class)->create($request);
+        $user = resolve(UserRepository::class)->create($request);
 
-        return response()->json(['message' => 'User created successfully'] , Response::HTTP_CREATED);
+        $defaultSuperAdminEmail = config('permission.default_super_admin_email');
+        $user->email === $defaultSuperAdminEmail ? $user->assignRole('Super Admin') : $user->assignRole('User') ;
+
+
+
+        return response()->json(['message' => 'User created successfully'], Response::HTTP_CREATED);
     }
 
-     /**
-      * Login user
+    /**
+     * Login user
      * @method GET
      * @param Request $request
      * @return JsonResponse
@@ -46,25 +51,24 @@ class AuthController extends Controller
 
         //  Validate form inputs
         $request->validate([
-            'email' => ['required' , 'email'],
+            'email' => ['required', 'email'],
             'password' => ['required'],
         ]);
 
         // check user Credentials For Login
-        if (Auth::attempt($request->only(['email' , 'password']))) {
-            return response()->json(Auth::user() , Response::HTTP_OK);
+        if (Auth::attempt($request->only(['email', 'password']))) {
+            return response()->json(Auth::user(), Response::HTTP_OK);
         }
 
         throw ValidationException::withMessages([
             'email' => 'incorrect credentials'
         ]);
-
     }
 
 
     public function user()
     {
-        return response()->json(Auth::user() ,  Response::HTTP_OK);
+        return response()->json(Auth::user(),  Response::HTTP_OK);
     }
 
 
@@ -74,6 +78,6 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => "logged out successfully"
-        ] ,  Response::HTTP_OK);
+        ],  Response::HTTP_OK);
     }
 }
