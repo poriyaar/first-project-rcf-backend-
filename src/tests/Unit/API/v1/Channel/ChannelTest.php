@@ -4,6 +4,8 @@ namespace Tests\Unit\API\v1\Channel;
 
 use Tests\TestCase;
 use App\Models\Channel;
+use App\Models\User;
+use Database\Seeders\RoleAndPermissionSeeder;
 use Illuminate\Http\Response;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -11,6 +13,11 @@ class ChannelControllerTest extends TestCase
 {
 
     use RefreshDatabase;
+
+    public function registerRoleAndPermissions()
+    {
+        $this->seed(RoleAndPermissionSeeder::class);
+    }
 
     /**
      * Test All Channel List Should Be Accessible
@@ -28,19 +35,27 @@ class ChannelControllerTest extends TestCase
      */
     public function test_create_channel_should_be_validated()
     {
-         $repository = $this->postJson(route('channel.create'), [
-            'name' => 'laravel'
-         ]);
+        $this->registerRoleAndPermissions();
+        $user = User::factory()->create();
+        $user->givePermissionTo('channel management');
 
-         $repository->assertStatus(Response::HTTP_CREATED);
+        $repository = $this->actingAs($user)->postJson(route('channel.create'), [
+            'name' => 'laravel'
+        ]);
+
+        $repository->assertStatus(Response::HTTP_CREATED);
     }
 
 
     public function test_create_new_channel()
     {
-         $repository = $this->postJson(route('channel.create'), []);
+        $this->registerRoleAndPermissions();
+        $user = User::factory()->create();
+        $user->givePermissionTo('channel management');
 
-         $repository->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+        $repository = $this->actingAs($user)->postJson(route('channel.create'), []);
+
+        $repository->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
     /**
@@ -48,23 +63,31 @@ class ChannelControllerTest extends TestCase
      */
     public function test_channel_update_should_be_validated()
     {
-        $response = $this->json('PUT',route('channel.update') , []);
+        $this->registerRoleAndPermissions();
+        $user = User::factory()->create();
+        $user->givePermissionTo('channel management');
+
+        $response = $this->actingAs($user)->json('PUT', route('channel.update'), []);
 
         $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
     public function test_channel_update()
     {
+        $this->registerRoleAndPermissions();
+        $user = User::factory()->create();
+        $user->givePermissionTo('channel management');
+
         $channel = Channel::factory()->create([
             'name' => 'laravel'
         ]);
-        $response = $this->json('PUT',route('channel.update') , [
+        $response = $this->actingAs($user)->json('PUT', route('channel.update'), [
             'id' => $channel->id,
             'name' => 'VueJs',
         ]);
         $updatedChannel = Channel::find($channel->id);
         $response->assertStatus(200);
-        $this->assertEquals('VueJs' , $updatedChannel->name);
+        $this->assertEquals('VueJs', $updatedChannel->name);
     }
 
     /**
@@ -72,7 +95,11 @@ class ChannelControllerTest extends TestCase
      */
     public function test_channel_delete_should_be_validated()
     {
-        $response = $this->json('DELETE' , route('channel.delete'));
+        $this->registerRoleAndPermissions();
+        $user = User::factory()->create();
+        $user->givePermissionTo('channel management');
+
+        $response = $this->actingAs($user)->json('DELETE', route('channel.delete'));
 
         $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
@@ -80,12 +107,15 @@ class ChannelControllerTest extends TestCase
 
     public function test_delete_channel()
     {
+        $this->registerRoleAndPermissions();
+        $user = User::factory()->create();
+        $user->givePermissionTo('channel management');
+
         $channel = Channel::factory()->create();
-        $response = $this->json('DELETE' , route('channel.delete') ,[
+        $response = $this->actingAs($user)->json('DELETE', route('channel.delete'), [
             'id' => $channel->id
         ]);
 
         $response->assertStatus(200);
     }
-
 }
