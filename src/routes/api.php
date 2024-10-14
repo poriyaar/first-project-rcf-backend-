@@ -22,5 +22,9 @@ Route::prefix('v1/')->group(function () {
     include __DIR__ . '/v1/auth_routes.php';
 
     // Channel Route
-    include __DIR__ . '/v1/channel_routes.php';
+    include __DIR__ . '/v1/channels_routes.php';
+
+    // Thread Route
+    include __DIR__ . '/v1/threads_routes.php';
+
 });
