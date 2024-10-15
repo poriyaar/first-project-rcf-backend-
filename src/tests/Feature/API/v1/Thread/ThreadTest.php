@@ -13,6 +13,7 @@ use Tests\TestCase;
 
 class ThreadTest extends TestCase
 {
+    use RefreshDatabase;
 
     /** @test */
     public function all_threads_list_should_be_accessible()

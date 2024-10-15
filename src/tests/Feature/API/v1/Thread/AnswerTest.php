@@ -13,6 +13,7 @@ use Tests\TestCase;
 
 class AnswerTest extends TestCase
 {
+    use RefreshDatabase;
     /** @test */
     function can_get_all_answer_list()
     {
@@ -70,10 +71,12 @@ class AnswerTest extends TestCase
     function can_update_own_answer_of_thread()
     {
 
-        Sanctum::actingAs(User::factory()->create());
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
 
         $answer = Answer::factory()->create([
-            'content' => 'Foo'
+            'content' => 'Foo',
+            'user_id' => $user->id
         ]);
 
         $response = $this->putJson(route('answers.update', [$answer]), [
@@ -93,9 +96,12 @@ class AnswerTest extends TestCase
     /** @test */
     function can_delete_own_answer()
     {
-        Sanctum::actingAs(User::factory()->create());
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
 
-        $answer = Answer::factory()->create();
+        $answer = Answer::factory()->create([
+            'user_id' => $user->id
+        ]);
 
         $response = $this->delete(route('answers.destroy', [$answer]));
 

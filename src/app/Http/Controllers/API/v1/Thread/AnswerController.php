@@ -8,6 +8,7 @@ use App\Models\Thread;
 use App\Repositories\AnswerRepository;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Gate;
 
 class AnswerController extends Controller
 {
@@ -29,7 +30,7 @@ class AnswerController extends Controller
             'thread_id' => 'required',
         ]);
 
-       resolve(AnswerRepository::class)->store($request);
+        resolve(AnswerRepository::class)->store($request);
 
         return response()->json([
             'message' => 'answer submitted successfully'
@@ -42,23 +43,35 @@ class AnswerController extends Controller
             'content' => 'required',
         ]);
 
-        resolve(AnswerRepository::class)->update($answer ,$request);
+        if (Gate::forUser(auth()->user())->allows('user-answer', $answer)) {
+            resolve(AnswerRepository::class)->update($answer, $request);
 
+
+            return response()->json([
+                'message' => 'answer updated successfully'
+            ], Response::HTTP_OK);
+        }
 
         return response()->json([
-            'message' => 'answer updated successfully'
-        ] , Response::HTTP_OK);
+            'message' => 'access denied'
+        ], Response::HTTP_FORBIDDEN);
     }
 
 
-    public function destroy( Answer $answer)
+    public function destroy(Answer $answer)
     {
 
+        if (Gate::forUser(auth()->user())->allows('user-answer', $answer)) {
 
-        resolve(AnswerRepository::class)->destroy($answer);
+            resolve(AnswerRepository::class)->destroy($answer);
+
+            return response()->json([
+                'message' => 'answer deleted successfully'
+            ], Response::HTTP_OK);
+        }
 
         return response()->json([
-            'message' => 'answer deleted successfully'
-        ] , Response::HTTP_OK);
+            'message' => 'access denied'
+        ], Response::HTTP_FORBIDDEN);
     }
 }
