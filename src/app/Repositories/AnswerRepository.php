@@ -23,9 +23,9 @@ class AnswerRepository
     }
 
 
-    public function update($answer,$request)
+    public function update($answer, $request)
     {
-       $answer->update([
+        $answer->update([
             'content' => $request->input('content'),
         ]);
     }

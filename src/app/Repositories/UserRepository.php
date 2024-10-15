@@ -19,6 +19,12 @@ class UserRepository
             'password' => Hash::make($request->name) ,
         ]);
     }
+
+
+    public function find($id)
+    {
+        return User::find($id);
+    }
 }
 
 
