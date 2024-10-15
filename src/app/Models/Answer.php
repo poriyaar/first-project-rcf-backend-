@@ -11,6 +11,8 @@ class Answer extends Model
 {
     use HasFactory;
 
+    protected $guarded = [];
+
 
     /**************************************** */
     /***********start relation*************** */
