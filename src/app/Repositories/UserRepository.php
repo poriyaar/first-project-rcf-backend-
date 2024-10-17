@@ -8,15 +8,15 @@ use Illuminate\Support\Facades\Hash;
 
 class UserRepository
 {
-     /**
-      * @param Request $request
-      */
+    /**
+     * @param Request $request
+     */
     public function create(Request $request): User
     {
-       return User::create([
+        return User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->name) ,
+            'password' => Hash::make($request->name),
         ]);
     }
 
@@ -25,7 +25,15 @@ class UserRepository
     {
         return User::find($id);
     }
+
+    public function leaderboards()
+    {
+        return User::query()->orderByDesc('score')->paginate(20);
+    }
+
+
+    public function isBlock(): bool
+    {
+        return (bool)auth()->user()->is_block;
+    }
 }
-
-
-?>

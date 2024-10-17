@@ -14,6 +14,7 @@ use Tests\TestCase;
 class AnswerTest extends TestCase
 {
     use RefreshDatabase;
+
     /** @test */
     function can_get_all_answer_list()
     {
@@ -25,6 +26,8 @@ class AnswerTest extends TestCase
     /** @test */
     function create_answer_should_be_validated()
     {
+        Sanctum::actingAs(User::factory()->create());
+
         $response = $this->postJson(route('answers.store'), []);
 
         $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
@@ -55,8 +58,30 @@ class AnswerTest extends TestCase
     }
 
     /** @test */
+    function user_score_will_increase_by_submit_new_answer()
+    {
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+
+        $thread = Thread::factory()->create();
+
+        $response = $this->postJson(route('answers.store'), [
+            'content' => "Foo",
+            'thread_id' => $thread->id
+        ]);
+
+        $response->assertStatus(Response::HTTP_CREATED);
+
+        $user->refresh();
+
+        $this->assertEquals(10, $user->score);
+    }
+
+    /** @test */
     function update_answer_should_be_validated()
     {
+        Sanctum::actingAs(User::factory()->create());
+
         $answer = Answer::factory()->create();
 
         $response = $this->putJson(route('answers.update', [$answer]), []);

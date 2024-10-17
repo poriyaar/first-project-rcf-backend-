@@ -19,6 +19,13 @@ use Illuminate\Support\Facades\Notification;
 class AnswerController extends Controller
 {
 
+    public function __construct()
+    {
+        $this->middleware(['user_block'])->except([
+            'index',
+        ]);
+    }
+
     public function index()
     {
         $answers = resolve(AnswerRepository::class)->getAllAnswers();
@@ -36,6 +43,7 @@ class AnswerController extends Controller
             'thread_id' => 'required',
         ]);
 
+        // insert data into DB
         resolve(AnswerRepository::class)->store($request);
 
         // Get list of user id which subscribed To A thread id
@@ -44,6 +52,12 @@ class AnswerController extends Controller
         $notifiable_users = resolve(UserRepository::class)->find($notifiable_user_id);
         // send NewReplaySubmitted notification to subscribe users
         Notification::send($notifiable_users, new NewReplaySubmitted(Thread::find($request->thread_id)));
+
+        // increase User Score
+        if (Thread::find($request->thread_id)->user_id != auth()->id()) {
+
+            auth()->user()->increment('score', 10);
+        }
 
         return response()->json([
             'message' => 'answer submitted successfully'

@@ -13,6 +13,14 @@ use App\Repositories\ThreadRepository;
 class ThreadController extends Controller
 {
 
+    public function __construct()
+    {
+        $this->middleware(['user_block'])->except([
+            'index',
+            'show',
+        ]);
+    }
+
     public function index()
     {
         $threads = resolve(ThreadRepository::class)->getAllAvailableThreads();
@@ -71,7 +79,7 @@ class ThreadController extends Controller
 
     public function destroy(Thread $thread)
     {
-        if (Gate::forUser(auth()->user())->allows('user-thread', $thread )) {
+        if (Gate::forUser(auth()->user())->allows('user-thread', $thread)) {
             resolve(ThreadRepository::class)->destroy($thread->id);
 
             return response()->json([
